@@ -8,6 +8,7 @@ import com.api.productengine.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -62,5 +63,9 @@ public class ProductService {
 
         product.setStock(product.getStock() - 1);
         return repository.save(product);
+    }
+    
+    public Double getTotalStockValue() {
+        return repository.findTotalStockValue();
     }
 }

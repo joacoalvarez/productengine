@@ -1,6 +1,6 @@
 package com.api.productengine.exception;
 
-public class ProductAlreadyExistsException extends RuntimeException {
+public class ProductAlreadyExistsException extends BusinessException {
 
     private final String productName;
 

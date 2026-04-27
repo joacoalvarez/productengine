@@ -48,4 +48,12 @@ public class ProductController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    public ResponseEntity<Double> getTotalStockValue() {
+        Double totalStockValue = service.getTotalStockValue();
+        return ResponseEntity.ok(totalStockValue);
+    }
+
+    
 }
