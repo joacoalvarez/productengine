@@ -87,4 +87,8 @@ public class ProductService {
     public BigDecimal getAveragePrice() {
         return repository.findAveragePrice();
     }
+
+    public List<Product> findOutOfStock() {
+        return repository.findOutOfStockProducts();
+    }
 }

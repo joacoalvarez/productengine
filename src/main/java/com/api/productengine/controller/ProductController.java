@@ -68,4 +68,10 @@ public class ProductController {
         BigDecimal averagePrice = service.getAveragePrice();
         return ResponseEntity.ok(averagePrice);
     }
+
+    @GetMapping
+    public ResponseEntity<List<Product>> findOutOfStock() {
+        List<Product> outOfStockProducts = service.findOutOfStock();
+        return ResponseEntity.ok(outOfStockProducts);
+    }
 }
