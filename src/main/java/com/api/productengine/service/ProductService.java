@@ -83,4 +83,8 @@ public class ProductService {
 
         return findById(id);
     }
+
+    public BigDecimal getAveragePrice() {
+        return repository.findAveragePrice();
+    }
 }

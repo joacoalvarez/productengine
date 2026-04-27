@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -56,11 +57,15 @@ public class ProductController {
         return ResponseEntity.ok(totalStockValue);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<Product> updateStock(@PathVariable Long id, @RequestBody ProductStockDTO productStockDto) {
         Product updated = service.updateStock(id, productStockDto);
         return ResponseEntity.ok(updated);
     }
 
-
+    @GetMapping
+    public ResponseEntity<BigDecimal> getAveragePrice() {
+        BigDecimal averagePrice = service.getAveragePrice();
+        return ResponseEntity.ok(averagePrice);
+    }
 }
