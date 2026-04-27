@@ -1,0 +1,386 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "ProductEngine API",
+    "description": "Complete CRUD collection for the ProductEngine Spring Boot REST API.\n\nBase URL is controlled via the `baseUrl` collection variable (default: http://localhost:8080).\n\nEndpoints:\n- POST   /api/products         → Create a product\n- GET    /api/products         → Get all products\n- GET    /api/products/:id     → Get product by ID\n- PUT    /api/products/:id     → Update a product\n- DELETE /api/products/:id     → Delete a product",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string",
+      "description": "Base URL of the ProductEngine API. Change this if running on a different host or port."
+    },
+    {
+      "key": "productId",
+      "value": "1",
+      "type": "string",
+      "description": "Product ID used in single-resource requests. Populated automatically by the 'Create Product' test script."
+    }
+  ],
+  "item": [
+    {
+      "name": "Products",
+      "description": "All endpoints under /api/products",
+      "item": [
+        {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ── Status check ──────────────────────────────────────────",
+                  "pm.test('Status is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// ── Response shape ────────────────────────────────────────",
+                  "pm.test('Response contains id, name, description, price, stock', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id');",
+                  "    pm.expect(body).to.have.property('name');",
+                  "    pm.expect(body).to.have.property('description');",
+                  "    pm.expect(body).to.have.property('price');",
+                  "    pm.expect(body).to.have.property('stock');",
+                  "});",
+                  "",
+                  "// ── Auto-save id for subsequent requests ─────────────────",
+                  "const body = pm.response.json();",
+                  "if (body && body.id) {",
+                  "    pm.collectionVariables.set('productId', body.id);",
+                  "    console.log('productId set to', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Wireless Mouse\",\n  \"description\": \"Ergonomic wireless mouse with 3 DPI settings\",\n  \"price\": 29.99,\n  \"stock\": 150\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"]
+            },
+            "description": "Creates a new product.\n\n**Required fields:** `name`, `price`, `stock`\n**Optional fields:** `description`\n\n**Success:** `201 Created` with the persisted Product object (includes auto-generated `id`).\n**Error:** `500 Internal Server Error` with an `ErrorResponse` body."
+          },
+          "response": [
+            {
+              "name": "201 – Product Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Wireless Mouse\",\n  \"description\": \"Ergonomic wireless mouse with 3 DPI settings\",\n  \"price\": 29.99,\n  \"stock\": 150\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api", "products"]}
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Wireless Mouse\",\n  \"description\": \"Ergonomic wireless mouse with 3 DPI settings\",\n  \"price\": 29.99,\n  \"stock\": 150\n}"
+            },
+            {
+              "name": "500 – Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": null,\n  \"price\": null,\n  \"stock\": null\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api", "products"]}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"status\": 500,\n  \"message\": \"Failed to create product: ...\",\n  \"timestamp\": \"2026-04-27T11:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each product has required fields', function () {",
+                  "    const products = pm.response.json();",
+                  "    products.forEach(function (p) {",
+                  "        pm.expect(p).to.have.property('id');",
+                  "        pm.expect(p).to.have.property('name');",
+                  "        pm.expect(p).to.have.property('price');",
+                  "        pm.expect(p).to.have.property('stock');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"]
+            },
+            "description": "Returns all products stored in the database.\n\n**Success:** `200 OK` with a JSON array of Product objects (empty array `[]` if none exist).\n**Error:** `500 Internal Server Error` with an `ErrorResponse` body."
+          },
+          "response": [
+            {
+              "name": "200 – OK (list)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api", "products"]}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Wireless Mouse\",\n    \"description\": \"Ergonomic wireless mouse with 3 DPI settings\",\n    \"price\": 29.99,\n    \"stock\": 150\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Mechanical Keyboard\",\n    \"description\": \"RGB backlit mechanical keyboard\",\n    \"price\": 89.99,\n    \"stock\": 75\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Product by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Product id matches requested id', function () {",
+                  "    const body = pm.response.json();",
+                  "    const requestedId = parseInt(pm.collectionVariables.get('productId'));",
+                  "    pm.expect(body.id).to.eql(requestedId);",
+                  "});",
+                  "",
+                  "pm.test('Response has all product fields', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.all.keys('id', 'name', 'description', 'price', 'stock');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "{{productId}}"]
+            },
+            "description": "Returns a single product by its `id`.\n\nUses the `{{productId}}` collection variable (auto-populated after **Create Product** runs).\n\n**Success:** `200 OK` with the Product object.\n**Not Found:** `404 Not Found` with an `ErrorResponse` body.\n**Error:** `500 Internal Server Error` with an `ErrorResponse` body."
+          },
+          "response": [
+            {
+              "name": "200 – OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/api/products/1", "host": ["{{baseUrl}}"], "path": ["api", "products", "1"]}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Wireless Mouse\",\n  \"description\": \"Ergonomic wireless mouse with 3 DPI settings\",\n  \"price\": 29.99,\n  \"stock\": 150\n}"
+            },
+            {
+              "name": "404 – Product Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/api/products/999", "host": ["{{baseUrl}}"], "path": ["api", "products", "999"]}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"status\": 404,\n  \"message\": \"Product with id 999 not found\",\n  \"timestamp\": \"2026-04-27T11:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Updated fields are reflected in response', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.name).to.eql('Wireless Mouse Pro');",
+                  "    pm.expect(body.price).to.eql(39.99);",
+                  "    pm.expect(body.stock).to.eql(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Wireless Mouse Pro\",\n  \"description\": \"Upgraded ergonomic wireless mouse with 5 DPI settings and silent click\",\n  \"price\": 39.99,\n  \"stock\": 200\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "{{productId}}"]
+            },
+            "description": "Fully replaces all mutable fields (`name`, `description`, `price`, `stock`) of the product identified by `id`.\n\nAll four fields should be provided in the body (partial updates are not supported — missing fields will be set to `null`).\n\n**Success:** `200 OK` with the updated Product object.\n**Not Found:** `404 Not Found` with an `ErrorResponse` body.\n**Error:** `500 Internal Server Error` with an `ErrorResponse` body."
+          },
+          "response": [
+            {
+              "name": "200 – OK (updated)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Wireless Mouse Pro\",\n  \"description\": \"Upgraded ergonomic wireless mouse with 5 DPI settings and silent click\",\n  \"price\": 39.99,\n  \"stock\": 200\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/api/products/1", "host": ["{{baseUrl}}"], "path": ["api", "products", "1"]}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Wireless Mouse Pro\",\n  \"description\": \"Upgraded ergonomic wireless mouse with 5 DPI settings and silent click\",\n  \"price\": 39.99,\n  \"stock\": 200\n}"
+            },
+            {
+              "name": "404 – Product Not Found",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Ghost Product\",\n  \"description\": \"Does not exist\",\n  \"price\": 9.99,\n  \"stock\": 0\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/api/products/999", "host": ["{{baseUrl}}"], "path": ["api", "products", "999"]}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"status\": 404,\n  \"message\": \"Product with id 999 not found\",\n  \"timestamp\": \"2026-04-27T11:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 204 No Content', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test('Response body is empty', function () {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "{{productId}}"]
+            },
+            "description": "Deletes the product identified by `id`.\n\n**Success:** `204 No Content` with an empty body.\n**Not Found:** `404 Not Found` with an `ErrorResponse` body.\n**Error:** `500 Internal Server Error` with an `ErrorResponse` body."
+          },
+          "response": [
+            {
+              "name": "204 – No Content (deleted)",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/api/products/1", "host": ["{{baseUrl}}"], "path": ["api", "products", "1"]}
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "text",
+              "header": [],
+              "body": ""
+            },
+            {
+              "name": "404 – Product Not Found",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/api/products/999", "host": ["{{baseUrl}}"], "path": ["api", "products", "999"]}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"status\": 404,\n  \"message\": \"Product with id 999 not found\",\n  \"timestamp\": \"2026-04-27T11:00:00\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
