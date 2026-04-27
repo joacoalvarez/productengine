@@ -21,81 +21,32 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Product product) {
-        try {
-            Product created = service.create(product);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
-        } catch (Exception e) {
-            ErrorResponse error = new ErrorResponse(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    "Failed to create product: " + e.getMessage()
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-        }
+    public ResponseEntity<Product> create(@RequestBody Product product) {
+        Product created = service.create(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll() {
-        try {
-            List<Product> products = service.findAll();
-            return ResponseEntity.ok(products);
-        } catch (Exception e) {
-            ErrorResponse error = new ErrorResponse(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    "Failed to retrieve products: " + e.getMessage()
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-        }
+    public ResponseEntity<List<Product>> getAll() {
+        List<Product> products = service.findAll();
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
-        try {
-            Product product = service.findById(id);
-            return ResponseEntity.ok(product);
-        } catch (ProductNotFoundException e) {
-            ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        } catch (Exception e) {
-            ErrorResponse error = new ErrorResponse(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    "Failed to retrieve product: " + e.getMessage()
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-        }
+    public ResponseEntity<Product> getById(@PathVariable Long id) {
+        Product product = service.findById(id);
+        return ResponseEntity.ok(product);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Product product) {
-        try {
-            Product updated = service.update(id, product);
-            return ResponseEntity.ok(updated);
-        } catch (ProductNotFoundException e) {
-            ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        } catch (Exception e) {
-            ErrorResponse error = new ErrorResponse(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    "Failed to update product: " + e.getMessage()
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-        }
+    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product product) {
+        Product updated = service.update(id, product);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            service.delete(id);
-            return ResponseEntity.noContent().build();
-        } catch (ProductNotFoundException e) {
-            ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        } catch (Exception e) {
-            ErrorResponse error = new ErrorResponse(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    "Failed to delete product: " + e.getMessage()
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-        }
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
-}
+}

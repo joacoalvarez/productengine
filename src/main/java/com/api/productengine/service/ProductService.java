@@ -26,49 +26,26 @@ public class ProductService {
     }
 
     public Product findById(Long id) {
-        try {
-            Optional<Product> result = repository.findById(id);
-            if (result.isEmpty()) {
-                throw new ProductNotFoundException(id);
-            }
-            return result.get();
-        } catch (ProductNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected error while fetching product with id: " + id, e);
-        }
+        return repository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     public Product update(Long id, Product updated) {
-        try {
-            Optional<Product> result = repository.findById(id);
-            if (result.isEmpty()) {
-                throw new ProductNotFoundException(id);
-            }
-            Product existing = result.get();
-            existing.setName(updated.getName());
-            existing.setDescription(updated.getDescription());
-            existing.setPrice(updated.getPrice());
-            existing.setStock(updated.getStock());
-            return repository.save(existing);
-        } catch (ProductNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected error while updating product with id: " + id, e);
-        }
+        return repository.findById(id)
+                .map(existing -> {
+                    existing.setName(updated.getName());
+                    existing.setDescription(updated.getDescription());
+                    existing.setPrice(updated.getPrice());
+                    existing.setStock(updated.getStock());
+                    return repository.save(existing);
+                })
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     public void delete(Long id) {
-        try {
-            Optional<Product> result = repository.findById(id);
-            if (result.isEmpty()) {
-                throw new ProductNotFoundException(id);
-            }
-            repository.deleteById(id);
-        } catch (ProductNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected error while deleting product with id: " + id, e);
+        if (!repository.existsById(id)) {
+            throw new ProductNotFoundException(id);
         }
+        repository.deleteById(id);
     }
 }
